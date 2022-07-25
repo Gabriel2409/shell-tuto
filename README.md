@@ -36,3 +36,31 @@ export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
 
 - Then, to make sure vagrant work in a given folder, we must set the env var:  
   `` export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH=`pwd` ``
+
+## Vagrant basics
+
+### Vagrant basic commands
+
+Each project comes with a Vagrantfile defining several vm
+
+- `vagrant up <vm_name>`: brings up the vm. If no name is specified, brings up all vms
+- `vagrant ssh <vm_name>`: ssh into the vm. If only one vm in the vagrant file, you can omit the name
+- `vagrant halt <vm_name>`: stops the vm. If no name is specified, stops all vms. To restart them: `vagrant up`
+
+- `vagrant suspend <vm_name>`: hibernates the vm
+- `vagrant suspend <vm_name>`: resumts the vm
+
+- `vagrant destroy <vm_name>`: destroys the vm
+
+### Basic Vagrantfile
+
+```bash
+Vagrant.configure(2) do |config| #2 corresponds to configuration version
+  config.vm.box = "jsonc/centos7" # name of the vbox
+  config.vm.hostname = "linuxsvr1"
+  config.vm.network "private_network", ip:"10.2.3.4"
+  config.vm.provision "shell", path: "setup.sh" # allows to create a shell script to configure system the first time vagrant up is executed
+end
+
+
+```
