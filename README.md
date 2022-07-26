@@ -1,4 +1,26 @@
-# Shell scripts
+# Useful shell commands and tricks
+
+## Commands
+
+- `type <cmd>` : can check if a command is a shell builtin or gives the path to it
+- `man <cmd>`: open manual for command
+
+## Tricks
+
+- single vs double quotes: https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash
+
+```bash
+
+WORD='script'
+echo '$WORD' # $WORD
+echo "$WORD" # script
+echo "This is a $WORD" # This is a script
+echo "Alternate syntax ${WORD}" # Alternate syntax script
+echo "$WORDing" #nothing: WORDing does not exist
+echo "${WORD}ing" #scripting
+```
+
+# Vagrant and VirtualBox
 
 ## Install virtual box and vagrant
 
@@ -61,6 +83,14 @@ Vagrant.configure(2) do |config| #2 corresponds to configuration version
   config.vm.network "private_network", ip:"10.2.3.4"
   config.vm.provision "shell", path: "setup.sh" # allows to create a shell script to configure system the first time vagrant up is executed
 end
-
-
 ```
+
+# Shell scripts
+
+- This section contains the collection of shell scripts, separated by exercises
+
+## Creating accounts
+
+- Create new accounts
+- Check for proper privilegs
+- Report if account creation fails
