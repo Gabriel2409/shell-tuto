@@ -4,13 +4,13 @@
 
 - `type <cmd>` : can check if a command is a shell builtin or gives the path to it
 - `man <cmd>`: open manual for command
+- `id`: prints user and group info for user
 
 ## Tricks
 
 - single vs double quotes: https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash
 
 ```bash
-
 WORD='script'
 echo '$WORD' # $WORD
 echo "$WORD" # script
@@ -19,6 +19,8 @@ echo "Alternate syntax ${WORD}" # Alternate syntax script
 echo "$WORDing" #nothing: WORDing does not exist
 echo "${WORD}ing" #scripting
 ```
+
+- evaluate expr: `$(expr)` or `` `expr`  ``
 
 # Vagrant and VirtualBox
 
@@ -89,8 +91,22 @@ end
 
 - This section contains the collection of shell scripts, separated by exercises
 
-## Creating accounts
+## Display UID and username of user executing the script + check if root
 
-- Create new accounts
-- Check for proper privilegs
-- Report if account creation fails
+Note for if statement
+
+- space after [[and before]]
+- variables between quotes
+- old syntax uses only 1 [:
+
+```bash
+echo "Your UID is ${UID}"
+USERNAME = $(id -un)
+echo "Your username is ${USERNAME}"
+
+if [[ "${UID}" -eq 0 ]]
+then
+  echo 'You are root'
+else
+  echo 'You are not root'
+```
