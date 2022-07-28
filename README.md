@@ -5,6 +5,7 @@
 - `type <cmd>` : can check if a command is a shell builtin or gives the path to it
 - `man <cmd>`: open manual for command
 - `id`: prints user and group info for user
+- `read`: prompt and retrieve user input. By default uses REPLY var but can specify var
 
 ## Tricks
 
@@ -21,6 +22,16 @@ echo "${WORD}ing" #scripting
 ```
 
 - evaluate expr: `$(expr)` or `` `expr`  ``
+
+- check last exit status with `${?}`:
+
+```bash
+test "$a" = foo ; echo "$?"
+# same as
+["$a" = foo ] ; echo "$?"
+# double [[ is bash specific so i can use =~
+["$a" = foo ]] ; echo "$?"
+```
 
 # Vagrant and VirtualBox
 
@@ -109,4 +120,29 @@ then
   echo 'You are root'
 else
   echo 'You are not root'
+```
+
+## add user (must be executed with root)
+
+```bash
+#!/bin/bash
+# This script creates an account on the local system
+
+# Ask for the username and stores in USERNAME var
+read -p 'Username: ' USERNAME
+
+# Same for real name
+read -p 'Real name: ' COMMENT
+
+# password
+read -s -p  'Password: ' PASSWORD
+
+# create user
+useradd -c "${COMMENT}" -m ${USERNAME}
+
+# set the password: use stdin to avoid prompt
+echo ${PASSWORD} | passwd --stdin ${USERNAME}
+
+# force passwd change on first login
+passwd -e ${USERNAME}
 ```
