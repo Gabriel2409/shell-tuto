@@ -126,23 +126,44 @@ else
 
 ```bash
 #!/bin/bash
-# This script creates an account on the local system
 
-# Ask for the username and stores in USERNAME var
-read -p 'Username: ' USERNAME
+# Creates a new user with a default password.
 
-# Same for real name
-read -p 'Real name: ' COMMENT
+# User will have to change it on first login
 
-# password
-read -s -p  'Password: ' PASSWORD
+# only root can change password
+if [[ ${UID} != 0 ]]; then
+	echo "Permission Denied"
+	exit 1
+fi
 
-# create user
-useradd -c "${COMMENT}" -m ${USERNAME}
+read -p "Enter username: " USERNAME
+read -p "Enter full name: " FULLNAME
+read -p -s "Enter initial password: " PASSWORD
 
-# set the password: use stdin to avoid prompt
-echo ${PASSWORD} | passwd --stdin ${USERNAME}
+# add the user
+useradd -c "${COMMENT}" -m "${USERNAME}"
+
+# returns an error if last command failed
+if [[ "${?}" -ne 0 ]]; then
+	echo "Problem when creating the user"
+	exit 1
+fi
+
+# updates the passwd
+echo "${USERNAME}:${PASSWORD}" | chpasswd
+if [[ "${?}" -ne 0 ]]; then
+	echo "Problem when changing the password"
+	exit 1
+fi
 
 # force passwd change on first login
 passwd -e ${USERNAME}
+
+# echo everything
+echo "Username: ${USERNAME}"
+echo "Password: ${PASSWORD}"
+echo "Host: ${HOSTNAME}"
+
+exit 0
 ```
