@@ -167,3 +167,16 @@ echo "Host: ${HOSTNAME}"
 
 exit 0
 ```
+
+## random password
+```bash
+#!/bin/bash
+
+SPECIAL='!@#$%^&*()_-+='
+# gets one ramdom char from SPECIAL
+SPECIAL_CHAR=$(echo ${SPECIAL} | fold -w 1 | shuf -n 1)
+
+PASSWORD=$(date +%s%N${RANDOM}${RANDOM} | sha256sum | head -c32)
+echo "${PASSWORD}${SPECIAL_CHAR}"
+exit 0
+```
