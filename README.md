@@ -7,6 +7,7 @@
 - `id`: prints user and group info for user
 - `read`: prompt and retrieve user input. By default uses REPLY var but can specify var
 
+
 ## Tricks
 
 - single vs double quotes: https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash
@@ -32,6 +33,21 @@ test "$a" = foo ; echo "$?"
 # double [[ is bash specific so i can use =~
 ["$a" = foo ]] ; echo "$?"
 ```
+
+- get nb of args: `${#}`
+- get all pos args as one string `${*}` and several `${@}`
+
+## IO redirection
+
+File descriptors: 0: STDIN, 1: STDOUT, 2: STDERR.
+
+- use file as STDIN: `read LINE < ${FILE}` ( < same as 0<)
+- redirect STDOUT to a file: `head -n1 /etc/passwd > ${FILE}` (> same as 1>)
+- redirect STDERR to a file: `... 2> ${FILE}` 
+- redirect both to same :`... > ${FILE} 2>&1` or `... &> ${FILE}`
+- redirect STDOUT to STDERR: `echo 'error' 1>&2`
+- mask STDOUT and STDERR: `... &> /dev/null`
+
 
 # Vagrant and VirtualBox
 
