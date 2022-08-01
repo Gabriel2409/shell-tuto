@@ -168,15 +168,80 @@ echo "Host: ${HOSTNAME}"
 exit 0
 ```
 
-## random password
+## add user with random password and command line args
 ```bash
 #!/bin/bash
 
+# Creates a new user.
+# first arg is username
+# all other args are full name
+# password automatically generated
+
+# only root can change password
+if [[ ${UID} != 0 ]]; then
+	echo "Permission Denied"
+	exit 1
+fi
+
+if [[ ${#} -lt 2 ]]; then
+	echo "You must specify at least two args (username and fullname)"
+	exit 1
+fi
+
+USERNAME=${1}
+
+shift # removes first pos arg
+
+## first solution:
+## for loop through all args: problem: extra space at the end
+FULLNAME=""
+for WORD in "${@}"; do # note: ${@} is optional (default value)
+	FULLNAME+="$WORD "
+done
+echo $FULLNAME
+
+## second solution: while loop through all args
+## only add extra space when necessary
+FULLNAME=""
+while [[ ${#} -gt 0 ]]; do
+	FULLNAME+=${1}
+	shift
+	if [[ ${#} -gt 0 ]]; then
+		FULLNAME+=" "
+	fi
+done
+echo $FULLNAME
+
+# third solution: add all remaining args as comments
+FULLNAME="${*}"
+
 SPECIAL='!@#$%^&*()_-+='
+
 # gets one ramdom char from SPECIAL
 SPECIAL_CHAR=$(echo ${SPECIAL} | fold -w 1 | shuf -n 1)
 
 PASSWORD=$(date +%s%N${RANDOM}${RANDOM} | sha256sum | head -c32)
-echo "${PASSWORD}${SPECIAL_CHAR}"
+PASSWORD="${PASSWORD}${SPECIAL_CHAR}"
+
+# # add the user
+useradd -c "${FULLNAME}" -m "${USERNAME}"
+
+# returns an error if last command failed
+if [[ "${?}" -ne 0 ]]; then
+	echo "Problem when creating the user"
+	exit 1
+fi
+
+# updates the passwd
+echo "${USERNAME}:${PASSWORD}" | chpasswd
+
+# force passwd change on first login
+passwd -e ${USERNAME}
+
+# echo everything
+echo "Username: ${USERNAME}"
+echo "Password: ${PASSWORD}"
+echo "Host: ${HOSTNAME}"
+
 exit 0
 ```
