@@ -59,11 +59,21 @@
   change user and group: `chown <user>:<group> <file>`, change only user `chown <user> <file>`
   change group only: `chgrp <group> <file>`
 
-- connect to another machine: `ssh <hostname_or_ip>` or `ssh <user>@<hostname>`
+- connect to another machine: `ssh <hostname_or_ip>` or `ssh <user>@<hostname>` (port 22 must be open)
   - generate basic key: `ssh-keygen -t rsa`
   - copy key on server with `ssh-copy-id <user>@<remote-server-name_or-IP>`
   - see authorized public keys on the server in `/home/<user>/.ssh/authorized_keys`
 - transfer files with scp: `scp /path/to/file <hostname>:/path/to/file`
+
+- `iptables -L` allows to see input, forward and output traffic rules.
+  We can see what is accepted, and what is dropped.
+- `iptables -A OUTPUT -p tcp --dport 80 -j DROP`: prevent all outgoing http requests
+- `iptables -A INPUT -p tcp --dport 80 -s 172.16.238.11 -j ACCEPT`: accepts incoming request from specified ip on port 80
+
+- cronjobs:
+  - `crontab -e`: edit list of jobs: first part is schedule, second is cmd
+    `min hour day month [weekday] cmd`. Put a star for all value, \*/<nb> for steps
+  - `crontab -l` to show all jobs. see logs in /var/log/syslog
 
 ## Tricks
 
