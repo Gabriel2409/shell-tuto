@@ -1,12 +1,34 @@
-# Useful shell commands and tricks
+# Linux systems
 
-## Commands
+## Useful commands
 
 - `type <cmd>` : can check if a command is a shell builtin or gives the path to it
 - `man <cmd>`: open manual for command
+- `whatis`: one line description
+- `apropos <keyword>`: finds commands that contain specific keyword
+
+- `file <filepath>`: see file type
+
+- `du`: see size
+
+- `echo $PS1`: see bash prompt config
+
+- `chsh`: change shell (see current with $SHELL var)
+
 - `id`: prints user and group info for user
 - `read`: prompt and retrieve user input. By default uses REPLY var but can specify var
+- `pushd` and `popd`: add / retrieves dir from stack
 
+- `uname`: info about the kernel (-r for kernel release)
+- `dmesg`: kernel msgs
+- `udevadm`: multiple commands for device manager
+- `lspci`, `lsblk`, `lscpu`, `lsmem` and `free`, `lshw` : list relevant hardware infos
+
+- `ls -l /sbin/init`: see where it points to check the init system used
+- `systemctl get-default`: see default target
+
+- `find /path/to/dir --name filename`: finds a file in a dir
+- `locate` can also be used but you might need to update db: `updatedb`
 
 ## Tricks
 
@@ -43,11 +65,10 @@ File descriptors: 0: STDIN, 1: STDOUT, 2: STDERR.
 
 - use file as STDIN: `read LINE < ${FILE}` ( < same as 0<)
 - redirect STDOUT to a file: `head -n1 /etc/passwd > ${FILE}` (> same as 1>)
-- redirect STDERR to a file: `... 2> ${FILE}` 
+- redirect STDERR to a file: `... 2> ${FILE}`
 - redirect both to same :`... > ${FILE} 2>&1` or `... &> ${FILE}`
 - redirect STDOUT to STDERR: `echo 'error' 1>&2`
 - mask STDOUT and STDERR: `... &> /dev/null`
-
 
 # Vagrant and VirtualBox
 
@@ -185,6 +206,7 @@ exit 0
 ```
 
 ## add user with random password and command line args
+
 ```bash
 #!/bin/bash
 
@@ -200,7 +222,7 @@ if [[ ${UID} != 0 ]]; then
 fi
 
 if [[ ${#} -lt 2 ]]; then
-	echo "You must specify at least two args (username and fullname)"
+	echo "You must specify at least two args (username and fullname)" 1>&2
 	exit 1
 fi
 
@@ -240,11 +262,11 @@ PASSWORD=$(date +%s%N${RANDOM}${RANDOM} | sha256sum | head -c32)
 PASSWORD="${PASSWORD}${SPECIAL_CHAR}"
 
 # # add the user
-useradd -c "${FULLNAME}" -m "${USERNAME}"
+useradd -c "${FULLNAME}" -m "${USERNAME}" &> /dev/null
 
 # returns an error if last command failed
 if [[ "${?}" -ne 0 ]]; then
-	echo "Problem when creating the user"
+	echo "Problem when creating the user" >&2
 	exit 1
 fi
 
