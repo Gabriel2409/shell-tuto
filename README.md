@@ -15,7 +15,6 @@
 
 - `chsh`: change shell (see current with $SHELL var)
 
-- `id`: prints user and group info for user
 - `read`: prompt and retrieve user input. By default uses REPLY var but can specify var
 - `pushd` and `popd`: add / retrieves dir from stack
 
@@ -27,8 +26,44 @@
 - `ls -l /sbin/init`: see where it points to check the init system used
 - `systemctl get-default`: see default target
 
-- `find /path/to/dir --name filename`: finds a file in a dir
+- `find /path/to/dir -name filename`: finds a file in a dir (only one - before name)
 - `locate` can also be used but you might need to update db: `updatedb`
+
+## Security
+
+- `id`: prints user and group info for user
+
+- see users at `/etc/passwd`, Structure is `USERNAME:PASSWORD:UID:GID:GECOS:HOMEDIR:SHELL`
+  Note: password can be shown as `x`, which means it is stored in `/etc/shadow`.
+  Note: GECOS contains a csv list of user info (optional)
+
+- passwords are stored in `/etc/shadow` (they are hashed).
+  Structure is `USERNAME:HASHED_PASSWORD:LASTCHANGE:MINAGE:MAXAGE:WARN:INACTIVE:EXPDATE`
+
+- see groups at `/etc/group`. Structure is `NAME:PASSWORD:GID:MEMBERS`
+  Note: a group password can allow a user to temporarily be granted the permissions of the group
+
+- see sudoers at `/etc/sudoers`
+  Note: for sudoers, on the left, user or group, then host (localhost by default) then user group then cmd
+  For ex: `%sudo ALL=(ALL:ALL) ALL` (members of sudo can use sudo on any host with any command)
+
+- add user: `useradd <user>` and set psswd `passwd <user>`
+- delete user: `userdel`
+- add group: `groupadd -g <gid> <name>`
+- delete group: `groupdel <name>`
+
+- file permissions (see with `ls -l`): first letter is file type, then you have
+  owner permissions, group permissions, permissions for others (r=4, w=2, x=1)
+- change permissions : `chmod ugo+r-x <file>`, `chmod u+rgx,g+r-x,o-rwx <file>`, `chmod 755 <file>`
+- change ownership:
+  change user and group: `chown <user>:<group> <file>`, change only user `chown <user> <file>`
+  change group only: `chgrp <group> <file>`
+
+- connect to another machine: `ssh <hostname_or_ip>` or `ssh <user>@<hostname>`
+  - generate basic key: `ssh-keygen -t rsa`
+  - copy key on server with `ssh-copy-id <user>@<remote-server-name_or-IP>`
+  - see authorized public keys on the server in `/home/<user>/.ssh/authorized_keys`
+- transfer files with scp: `scp /path/to/file <hostname>:/path/to/file`
 
 ## Tricks
 
