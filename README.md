@@ -1,11 +1,79 @@
-# Useful shell commands and tricks
+# Linux systems
 
-## Commands
+## Useful commands
 
 - `type <cmd>` : can check if a command is a shell builtin or gives the path to it
 - `man <cmd>`: open manual for command
-- `id`: prints user and group info for user
+- `whatis`: one line description
+- `apropos <keyword>`: finds commands that contain specific keyword
+
+- `file <filepath>`: see file type
+
+- `du`: see size
+
+- `echo $PS1`: see bash prompt config
+
+- `chsh`: change shell (see current with $SHELL var)
+
 - `read`: prompt and retrieve user input. By default uses REPLY var but can specify var
+- `pushd` and `popd`: add / retrieves dir from stack
+
+- `uname`: info about the kernel (-r for kernel release)
+- `dmesg`: kernel msgs
+- `udevadm`: multiple commands for device manager
+- `lspci`, `lsblk`, `lscpu`, `lsmem` and `free`, `lshw` : list relevant hardware infos
+
+- `ls -l /sbin/init`: see where it points to check the init system used
+- `systemctl get-default`: see default target
+
+- `find /path/to/dir -name filename`: finds a file in a dir (only one - before name)
+- `locate` can also be used but you might need to update db: `updatedb`
+
+## Security
+
+- `id`: prints user and group info for user
+
+- see users at `/etc/passwd`, Structure is `USERNAME:PASSWORD:UID:GID:GECOS:HOMEDIR:SHELL`
+  Note: password can be shown as `x`, which means it is stored in `/etc/shadow`.
+  Note: GECOS contains a csv list of user info (optional)
+
+- passwords are stored in `/etc/shadow` (they are hashed).
+  Structure is `USERNAME:HASHED_PASSWORD:LASTCHANGE:MINAGE:MAXAGE:WARN:INACTIVE:EXPDATE`
+
+- see groups at `/etc/group`. Structure is `NAME:PASSWORD:GID:MEMBERS`
+  Note: a group password can allow a user to temporarily be granted the permissions of the group
+
+- see sudoers at `/etc/sudoers`
+  Note: for sudoers, on the left, user or group, then host (localhost by default) then user group then cmd
+  For ex: `%sudo ALL=(ALL:ALL) ALL` (members of sudo can use sudo on any host with any command)
+
+- add user: `useradd <user>` and set psswd `passwd <user>`
+- delete user: `userdel`
+- add group: `groupadd -g <gid> <name>`
+- delete group: `groupdel <name>`
+
+- file permissions (see with `ls -l`): first letter is file type, then you have
+  owner permissions, group permissions, permissions for others (r=4, w=2, x=1)
+- change permissions : `chmod ugo+r-x <file>`, `chmod u+rgx,g+r-x,o-rwx <file>`, `chmod 755 <file>`
+- change ownership:
+  change user and group: `chown <user>:<group> <file>`, change only user `chown <user> <file>`
+  change group only: `chgrp <group> <file>`
+
+- connect to another machine: `ssh <hostname_or_ip>` or `ssh <user>@<hostname>` (port 22 must be open)
+  - generate basic key: `ssh-keygen -t rsa`
+  - copy key on server with `ssh-copy-id <user>@<remote-server-name_or-IP>`
+  - see authorized public keys on the server in `/home/<user>/.ssh/authorized_keys`
+- transfer files with scp: `scp /path/to/file <hostname>:/path/to/file`
+
+- `iptables -L` allows to see input, forward and output traffic rules.
+  We can see what is accepted, and what is dropped.
+- `iptables -A OUTPUT -p tcp --dport 80 -j DROP`: prevent all outgoing http requests
+- `iptables -A INPUT -p tcp --dport 80 -s 172.16.238.11 -j ACCEPT`: accepts incoming request from specified ip on port 80
+
+- cronjobs:
+  - `crontab -e`: edit list of jobs: first part is schedule, second is cmd
+    `min hour day month [weekday] cmd`. Put a star for all value, \*/<nb> for steps
+  - `crontab -l` to show all jobs. see logs in /var/log/syslog
 
 ## Tricks
 
@@ -32,6 +100,20 @@ test "$a" = foo ; echo "$?"
 # double [[ is bash specific so i can use =~
 ["$a" = foo ]] ; echo "$?"
 ```
+
+- get nb of args: `${#}`
+- get all pos args as one string `${*}` and several `${@}`
+
+## IO redirection
+
+File descriptors: 0: STDIN, 1: STDOUT, 2: STDERR.
+
+- use file as STDIN: `read LINE < ${FILE}` ( < same as 0<)
+- redirect STDOUT to a file: `head -n1 /etc/passwd > ${FILE}` (> same as 1>)
+- redirect STDERR to a file: `... 2> ${FILE}`
+- redirect both to same :`... > ${FILE} 2>&1` or `... &> ${FILE}`
+- redirect STDOUT to STDERR: `echo 'error' 1>&2`
+- mask STDOUT and STDERR: `... &> /dev/null`
 
 # Vagrant and VirtualBox
 
@@ -169,6 +251,7 @@ exit 0
 ```
 
 ## add user with random password and command line args
+
 ```bash
 #!/bin/bash
 
@@ -184,7 +267,7 @@ if [[ ${UID} != 0 ]]; then
 fi
 
 if [[ ${#} -lt 2 ]]; then
-	echo "You must specify at least two args (username and fullname)"
+	echo "You must specify at least two args (username and fullname)" 1>&2
 	exit 1
 fi
 
@@ -224,11 +307,11 @@ PASSWORD=$(date +%s%N${RANDOM}${RANDOM} | sha256sum | head -c32)
 PASSWORD="${PASSWORD}${SPECIAL_CHAR}"
 
 # # add the user
-useradd -c "${FULLNAME}" -m "${USERNAME}"
+useradd -c "${FULLNAME}" -m "${USERNAME}" &> /dev/null
 
 # returns an error if last command failed
 if [[ "${?}" -ne 0 ]]; then
-	echo "Problem when creating the user"
+	echo "Problem when creating the user" >&2
 	exit 1
 fi
 
