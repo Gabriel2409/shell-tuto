@@ -114,6 +114,9 @@ File descriptors: 0: STDIN, 1: STDOUT, 2: STDERR.
 - redirect both to same :`... > ${FILE} 2>&1` or `... &> ${FILE}`
 - redirect STDOUT to STDERR: `echo 'error' 1>&2`
 - mask STDOUT and STDERR: `... &> /dev/null`
+- arithmetic expr :
+  - assignment: `NUM=$(( 1 + 2 ))`
+  - increment `(( NUM++ ))`
 
 # Vagrant and VirtualBox
 
