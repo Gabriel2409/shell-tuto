@@ -29,6 +29,35 @@
 - `find /path/to/dir -name filename`: finds a file in a dir (only one - before name)
 - `locate` can also be used but you might need to update db: `updatedb`
 
+## Networking
+
+Lest look at www.google.com:
+
+- `.` is the root
+- `.com` is the top level domain name
+- `google` is the domain name assigned to google
+- `www` is the subdomain
+
+- /etc/hosts: contains local name mapping (ex: `127.0.0.1 localhost`)
+- /etc/resolv.conf contains options such as
+  - `search mydomain.com` (can add mydomain.com to names when doing a request)
+  - `nameserver 8.8.8.8` (address of a dns server)
+- /etc/nsswitch.conf : contains among others the hosts which specify in which to resolve name lookup (for ex: `hosts dns files` checks dns before /etc/hosts)
+
+- check if you can resolve hostname to ip with `nslookup <name>` (nslookup reaches out to the dns server)
+
+- see the interfaces: `ip link`
+- bring interface up: `ip link set <interface> up`
+- `ip addr`: see ip addresses associated to these interfaces
+- we can connect several machines to a switch so that they can communicate: `ip addr add <machine-ip> dev <interface>`, for ex `ip addr add 192.168.1.10/24 dev eth0`
+- see the internal routing table with `route` or `ip route`
+- `ip route add 192.168.2.0/24 via 192.168.1.1` indicates that network 192.168.2.0/24 can be reached via 192.168.1.1. In practice it means we added a router.
+  In the first network, the router has an ip of 192.168.1.1 and in the second 192.168.2.1
+- add the router ip as default gateway: `ip route add default via 192.168.1.1`
+  Note: changes with ip route add only last until system restart. To make them permanent, modify /etc/network/interfaces file
+
+- trouble shoot network connectivity with `traceroute <ip>`
+
 ## Security
 
 - `id`: prints user and group info for user
@@ -75,6 +104,34 @@
     `min hour day month [weekday] cmd`. Put a star for all value, \*/<nb> for steps
   - `crontab -l` to show all jobs. see logs in /var/log/syslog
 
+## Systemd
+
+- add some services in /etc/systemd/system/myservice.service
+- start/stop/restart/reload service: `systemctl start/stop/restart/reload myservice`
+- enable/disable on boot: `systemctl enable/disable myservice`
+- reload daemon: `systemctl daemon-reload`
+- to apply changes immediately without needing to reload the daemon: `systemctl edit myservice --full`
+- get service status: `systemctl status myservice`
+
+```
+# example service
+
+[Unit]
+Description=My description of the service
+Documentation= http://link-to-doc
+
+After=postgresql.service # service should start after postgresql service
+
+[Service]
+ExecStart=/usr/bin/project.sh # cmd to run when starting the service
+User=myserviceaccount # specify a service account so that service is not run as root
+Restart=on-failure # automatically restart on failure
+RestartSec=10 # try to restart after 10s
+
+[Install]
+WantedBy=graphical.target # systemd target / runlevel that needs the service
+```
+
 ## Tricks
 
 - single vs double quotes: https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash
@@ -114,9 +171,11 @@ File descriptors: 0: STDIN, 1: STDOUT, 2: STDERR.
 - redirect both to same :`... > ${FILE} 2>&1` or `... &> ${FILE}`
 - redirect STDOUT to STDERR: `echo 'error' 1>&2`
 - mask STDOUT and STDERR: `... &> /dev/null`
-- arithmetic expr :
-  - assignment: `NUM=$(( 1 + 2 ))`
-  - increment `(( NUM++ ))`
+
+## Arithmetic expr
+
+- assignment: `NUM=$(( 1 + 2 ))`
+- increment `(( NUM++ ))`
 
 # Vagrant and VirtualBox
 
