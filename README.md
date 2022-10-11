@@ -24,7 +24,6 @@
 - `lspci`, `lsblk`, `lscpu`, `lsmem` and `free`, `lshw` : list relevant hardware infos
 
 - `ls -l /sbin/init`: see where it points to check the init system used
-- `systemctl get-default`: see default target
 
 - `find /path/to/dir -name filename`: finds a file in a dir (only one - before name)
 - `locate` can also be used but you might need to update db: `updatedb`
@@ -104,6 +103,24 @@ Lest look at www.google.com:
     `min hour day month [weekday] cmd`. Put a star for all value, \*/<nb> for steps
   - `crontab -l` to show all jobs. see logs in /var/log/syslog
 
+## Storage
+
+- see block devices: `lsblk`: each block device has a major and a minor number
+  - major=type of block device: 1=RAM, 3=HARD_DISK, 6=PARALLEL_PRINTERS, 8=SSD...
+  - minor=used to distinguish physical and logical devices (for ex identify partitions)
+- Note: more infos with `sudo fdisk -l /dev/sda`
+
+- create partitions: `sudo gdisk /dev/sdb` then type `?` to see list of commands:
+  for ex: n to create, then specify the spec then w to write
+
+- commonly used filesystems: `ext2 to 4`,
+- `df` to see filesystems
+- `blkid /dev/vdc` to see filesystem type of given device
+- create a filesystem and mount it:
+  `sudo mkfs.ext4 /dev/vdb` then `sudo mkdir /mnt/data` then `sudo mount /dev/vdb /mnt/data`
+- make mount persistent after reboot: in `/etc/fstab`, add line: `/dev/vdb /mnt/data ext4 rw 0 0`
+  Note: line is `<Filesystem> <mountpoint> <type> <options (rw, ro)> <dump (0=ignore, 1=take backup)> <pass (0=ignore, 1 or 2= fsck filesystem check enforced)>`
+
 ## Systemd
 
 - add some services in /etc/systemd/system/myservice.service
@@ -112,6 +129,7 @@ Lest look at www.google.com:
 - reload daemon: `systemctl daemon-reload`
 - to apply changes immediately without needing to reload the daemon: `systemctl edit myservice --full`
 - get service status: `systemctl status myservice`
+- `systemctl get-default`: see default target
 
 ```
 # example service
